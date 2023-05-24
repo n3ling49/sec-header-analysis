@@ -1,0 +1,22 @@
+{"headers": [
+  "cross-origin-embedder-policy",
+  "cross-origin-opener-policy",
+  "cross-origin-resource-policy",
+  "content-security-policy",
+  "content-security-policy-report-only",
+  "expect-ct",
+  "origin-isolation",
+  "permissions-policy",
+  "strict-transport-security",
+  "upgrade-insecure-requests",
+  "x-content-type-options",
+  "x-frame-options",
+  "x-permitted-cross-domain-policies",
+  "x-powered-by",
+  "x-xss-protection",
+  "sec-fetch-site",
+  "sec-fetch-mode",
+  "sec-fetch-user",
+  "sec-fetch-dest",
+  "service-worker-navigation-preload"
+]}
