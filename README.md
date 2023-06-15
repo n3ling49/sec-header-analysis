@@ -14,4 +14,4 @@ Make sure to run this script on a linux system and have [docker](https://docs.do
 ~$ ./start.sh
 ```
 
-This will build the secheader docker image, if it doesn't exist already and/or run the image immeadiately.
+This will build the secheader docker image, if it doesn't exist already and/or run the image immediately.
