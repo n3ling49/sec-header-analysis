@@ -2,7 +2,8 @@
 
 result=$( docker images -q secheader )
 
-if [[ -z "$result" ]]; then
+if [ -z "$result" ] || [ "$1" = "build" ];
+then
     echo "*******************************"
     echo "* Building secheader image... *"
     echo "*******************************"
