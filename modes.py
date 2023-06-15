@@ -7,12 +7,11 @@ import math
 WEBSITEAMT = 6
 def scanWebsites(result, websites, amt = WEBSITEAMT):
     options = Options()
-
-    # this parameter tells Chrome that
-    # it should be run without UI (Headless)
     options.add_argument('--headless')
+    #the following two arguments somehow fix the webdriver issue in docker
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
 
-    # initializing webdriver for Chrome with our options
     driver = webdriver.Chrome(options=options)
 
     visited = 0
