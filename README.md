@@ -15,3 +15,8 @@ Make sure to run this script on a linux system and have [docker](https://docs.do
 ```
 
 This will build the secheader docker image, if it doesn't exist already and/or run the image immediately.
+
+To force building the image, even if it already exists execute:
+```console
+~$ ./start.sh build
+```
