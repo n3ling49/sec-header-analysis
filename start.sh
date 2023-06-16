@@ -15,4 +15,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 echo "**********************************"
 echo "* Running secheader container... *"
 echo "**********************************"
-docker run -v "$SCRIPT_DIR"/results:/usr/src/app/results secheader
+docker run -it -v "$SCRIPT_DIR"/results:/usr/src/app/results secheader
