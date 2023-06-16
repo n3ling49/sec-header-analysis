@@ -1,8 +1,8 @@
 #!/bin/bash
 
-result=$( docker images -q secheader )
+image=$( docker images -q secheader )
 
-if [ -z "$result" ] || [ "$1" = "build" ];
+if [ -z "$image" ] || [ "$1" = "build" ];
 then
     echo "*******************************"
     echo "* Building secheader image... *"
@@ -10,7 +10,9 @@ then
     docker build -t secheader .
 fi
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 echo "**********************************"
 echo "* Running secheader container... *"
 echo "**********************************"
-docker run secheader
+docker run -v "$SCRIPT_DIR"/results:/usr/src/app/results secheader
