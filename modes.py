@@ -4,7 +4,7 @@ import utils
 import threading
 import math
 
-WEBSITEAMT = 6
+WEBSITEAMT = 16
 def scanWebsites(result, websites, amt = WEBSITEAMT):
     options = Options()
     options.add_argument('--headless')
@@ -16,10 +16,10 @@ def scanWebsites(result, websites, amt = WEBSITEAMT):
 
     visited = 0
     while visited < amt:
-        print(websites[visited].replace("\n", ""))
+        print("requesting nr. " + websites[visited].replace("\n", "").replace(",", ", ") + " ...")
         website = utils.get(websites[visited])
         driver.get('https://www.' + website)
-        print("Requests: " + str(len(driver.requests)))
+        print("Requests ("+ website +"): " + str(len(driver.requests)))
         result[website] = str(driver.requests)
         del driver.requests
         """
