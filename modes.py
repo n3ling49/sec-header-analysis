@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.options import Options
 import utils
 import threading
 import math
+import json
 
 WEBSITEAMT = 16
 def scanWebsites(result, websites, amt = WEBSITEAMT):
@@ -18,18 +19,32 @@ def scanWebsites(result, websites, amt = WEBSITEAMT):
     while visited < amt:
         print("requesting nr. " + websites[visited].replace("\n", "").replace(",", ", ") + " ...")
         website = utils.get(websites[visited])
+        result[website] = list()
         driver.get('https://www.' + website)
         print("Requests ("+ website +"): " + str(len(driver.requests)))
-        result[website] = str(driver.requests)
+
+        for request in driver.requests:
+            req_and_res = dict()
+
+            request_json = {
+                "method": request.method,
+                "url": request.url,
+                "headers": dict(request.headers),
+            }
+
+            req_and_res["request"] = json.dumps(request_json)
+
+            if request.response:
+                response_json = {
+                    "status_code": request.response.status_code,
+                    "reason": request.response.reason,
+                    "headers": dict(request.response.headers),
+                }
+                req_and_res["response"] = json.dumps(response_json)
+
+            result[website].append(req_and_res)
+
         del driver.requests
-        """
-        print(driver.requests[0].headers.keys())
-        for header in driver.requests[0].headers.keys():
-            if header in secHeaders:
-                print(header+": true")
-            else:
-                print(header + ": false")
-        """
         visited += 1
     driver.close()
 
