@@ -1,10 +1,10 @@
 import json
 import time
 
-def loadWebsites():
+def loadWebsites(website_amt):
     with open('./resources/tranco_X5XLN.csv') as file:
         lines = file.readlines()
-        return lines[20:]
+        return lines[:website_amt]
 def get(website):
     return website.split(",")[1].replace("\n", "")
 

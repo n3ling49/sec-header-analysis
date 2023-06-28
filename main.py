@@ -4,7 +4,9 @@ import time
 import utils
 import modes
 
-websites = utils.loadWebsites()
+WEBSITEAMT = 16
+
+websites = utils.loadWebsites(WEBSITEAMT)
 workingDir = pathlib.Path().resolve()
 
 #startTime1 = time.time()
