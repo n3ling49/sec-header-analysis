@@ -17,10 +17,10 @@ RUN pip install selenium
 RUN apt-get update
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN apt-get install ./google-chrome-stable_current_amd64.deb -y
-RUN wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
 RUN apt-get install unzip -y
-RUN unzip chromedriver_linux64.zip
-RUN mv chromedriver /usr/bin/chromedriver
+RUN unzip chromedriver-linux64.zip
+RUN mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
 RUN chown root:root /usr/bin/chromedriver
 RUN chmod +x /usr/bin/chromedriver
 
