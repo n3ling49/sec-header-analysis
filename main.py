@@ -5,10 +5,11 @@ import utils
 import modes
 import script
 
-WEBSITEAMT = 250
+WEBSITEAMT = 20
 
 websites = utils.loadWebsites(WEBSITEAMT)
 workingDir = pathlib.Path().resolve()
+utils.create_results_dir()
 
 #startTime1 = time.time()
 #modes.scanWebsites(websites)
@@ -19,4 +20,4 @@ stopTime2 = time.time()
 #print("\nTime Single: "+str(stopTime1-startTime1))
 print("\nTime Multi: "+str(stopTime2-startTime2))
 script.getfailed(result)
-utils.save(result)
+#utils.save_multiple_files(result)

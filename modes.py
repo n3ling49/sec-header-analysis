@@ -5,6 +5,7 @@ import threading
 import math
 import json
 import queue
+import traceback
 
 def scanWebsites(result, website_queue, thread_nr):
     options = Options()
@@ -59,8 +60,10 @@ def scanWebsites(result, website_queue, thread_nr):
                     req_and_res["response"] = json.dumps(response_json)
 
                 result[website].append(req_and_res)
+                utils.save_single_file(req_and_res, website)
         except Exception as e:
             print(f'caught {type(e)}: e')
+            traceback.print_exc()
 
         del driver.requests
     driver.close()
