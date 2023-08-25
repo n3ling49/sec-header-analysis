@@ -2,7 +2,7 @@ import json
 import time
 
 def loadWebsites(website_amt):
-    with open('./resources/tranco_X5XLN.csv') as file:
+    with open('./resources/top-1m.csv') as file:
         lines = file.readlines()
         return lines[len(lines)-website_amt:]
 def get(website):
