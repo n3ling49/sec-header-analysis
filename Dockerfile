@@ -9,9 +9,11 @@ COPY . .
 # install dependencies
 
 #python related dependencies
+RUN pip install --upgrade pip
 RUN pip install pathlib
 RUN pip install selenium-wire
 RUN pip install selenium
+RUN pip install requests
 
 #chrome related dependencies
 RUN apt-get update
@@ -23,6 +25,3 @@ RUN unzip chromedriver-linux64.zip
 RUN mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
 RUN chown root:root /usr/bin/chromedriver
 RUN chmod +x /usr/bin/chromedriver
-
-# run the command
-CMD ["python", "./main.py"]
