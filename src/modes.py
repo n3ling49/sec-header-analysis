@@ -28,6 +28,7 @@ def scanWebsites(result, website_queue, thread_nr):
             break
 
         print("requesting nr. " + item.replace("\n", "").replace(",", ", ") + " (Thread "+str(thread_nr+1)+")...")
+        website_nr = item.split(",")[0]
         website = utils.get(item)
         result[website] = list()
 
@@ -59,7 +60,7 @@ def scanWebsites(result, website_queue, thread_nr):
                     req_and_res["response"] = json.dumps(response_json)
 
                 result[website].append(req_and_res)
-                utils.save_single_file(req_and_res, website)
+                utils.save_single_file(req_and_res, website, "", website_nr)
         except Exception as e:
             print(f'caught {type(e)}: e')
             traceback.print_exc()
