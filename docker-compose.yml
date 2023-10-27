@@ -1,7 +1,8 @@
 version: "3"
 services:
   test:
-    image: secheader
+    build:
+      dockerfile: Dockerfile
     stdin_open: true # docker run -i
     tty: true # docker run -t
     volumes:
