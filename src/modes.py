@@ -1,13 +1,17 @@
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
+from seleniumwire.undetected_chromedriver.v2 import Chrome, ChromeOptions
 import utils as utils
 import threading
 import json
 import queue
 import traceback
+import multiprocessing
+import time
+from filelock import FileLock
 
 def scanWebsites(result, website_queue, thread_nr):
-    options = Options()
+    options = ChromeOptions()
     options.add_argument('--headless')
     #the following two arguments somehow fix the webdriver issue in docker
     options.add_argument('--no-sandbox')
@@ -18,7 +22,9 @@ def scanWebsites(result, website_queue, thread_nr):
     user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
     options.add_argument(f'user-agent={user_agent}')
     
-    driver = webdriver.Chrome(options=options)
+    driver = None
+    with FileLock("chromedriver.lock"):
+        driver = Chrome(options=options)
     #driver.set_page_load_timeout(60)
 
     while True:
@@ -75,7 +81,8 @@ Also saves every occurring https request per website in a dictionary, which the 
 def multiScan(websites, threadAmt):
     result = dict()
 
-    q = queue.Queue()
+    manager = multiprocessing.Manager()
+    q = manager.Queue()
 
     for website in websites:
         q.put(website)
@@ -84,12 +91,12 @@ def multiScan(websites, threadAmt):
 
     threads = list()
     for i in range(0, threadAmt):
-        thread = threading.Thread(target=scanWebsites, args=(result, q, i))
-        threads.append(thread)
+        #thread = threading.Thread(target=scanWebsites, args=(result, q, i))
+        #threads.append(thread)
+        process = multiprocessing.Process(target=scanWebsites, args=(result, q, i))
+        process.start()
+        threads.append(process)
 
-    for thread in threads:
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    for process in threads:
+        process.join()
     return result

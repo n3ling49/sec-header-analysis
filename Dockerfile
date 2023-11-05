@@ -14,6 +14,8 @@ RUN pip install pathlib
 RUN pip install selenium-wire
 RUN pip install selenium
 RUN pip install requests
+RUN pip install undetected-chromedriver
+RUN pip install filelock
 
 #chrome related dependencies
 RUN apt-get update
