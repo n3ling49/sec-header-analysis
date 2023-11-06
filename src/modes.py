@@ -23,8 +23,14 @@ def scanWebsites(result, website_queue, thread_nr):
     options.add_argument(f'user-agent={user_agent}')
     
     driver = None
-    with FileLock("chromedriver.lock"):
+    file = "/usr/bin/chromedriver"
+    lockfile = "/usr/bin/chromedriver.lock"
+    lock = FileLock(lockfile)
+    lock.acquire()
+    try:
         driver = Chrome(options=options)
+    finally:
+        lock.release()
     #driver.set_page_load_timeout(60)
 
     while True:
