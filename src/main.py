@@ -16,7 +16,6 @@ if __name__ == '__main__':
     open('top-1m.csv.zip', 'wb').write(r.content)
     with ZipFile('top-1m.csv.zip', 'r') as zipObj:
         zipObj.extractall(path='/app/resources/')
-    print(os.listdir('/app/resources'))
     # Loading a subset of websites from the list
 
     websites = utils.loadWebsites(WEBSITEAMT)
@@ -24,14 +23,8 @@ if __name__ == '__main__':
     utils.create_results_dir()
 
     #fetching the websites
-
-    #startTime1 = time.time()
-    #modes.scanWebsites(websites)
-    #stopTime1 = time.time()
     startTime2 = time.time()
     result = modes.multiScan(websites, 9)
     stopTime2 = time.time()
-    #print("\nTime Single: "+str(stopTime1-startTime1))
     print("\nTime Multi: "+str(stopTime2-startTime2))
     script.getfailed(result)
-    #utils.save_multiple_files(result)
