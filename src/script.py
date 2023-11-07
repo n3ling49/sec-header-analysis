@@ -14,11 +14,14 @@ def getfailed(data):
             lightfailed += 1
             failed_data[key] = data[key]
         
-    
-    print("Failed: "+str(failed))
-    print("Lightfailed: "+str(lightfailed))
-    print("Percentage: "+str(failed/len(keys)*100)+"%")
-    print("Percentage (lightfailed): "+str(lightfailed/len(keys)*100)+"%")
+    try:
+        print("Failed: "+str(failed))
+        print("Lightfailed: "+str(lightfailed))
+        print("Percentage: "+str(failed/len(keys)*100)+"%")
+        print("Percentage (lightfailed): "+str(lightfailed/len(keys)*100)+"%")
+    except Exception as e:
+        print(e)
+    utils.save(data, "data_")
     utils.save(failed_data, "failed_")
 
 '''

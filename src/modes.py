@@ -38,11 +38,11 @@ def scanWebsites(result, website_queue, thread_nr):
 
         if item is None:
             break
-
+        
         print("requesting nr. " + item.replace("\n", "").replace(",", ", ") + " (Thread "+str(thread_nr+1)+")...")
         website_nr = item.split(",")[0]
         website = utils.get(item)
-        result[website] = list()
+        website_result = list()
 
         try:
             driver.get('https://' + website)
@@ -70,12 +70,15 @@ def scanWebsites(result, website_queue, thread_nr):
                         "headers": dict(request.response.headers),
                     }
                     req_and_res["response"] = json.dumps(response_json)
-
-                result[website].append(req_and_res)
+                
+                website_result.append(req_and_res)
                 utils.save_single_file(req_and_res, website, "", website_nr)
         except Exception as e:
             print(f'caught {type(e)}: e')
             traceback.print_exc()
+        
+        result[website] = website_result
+        print(len(result[website]))
 
         del driver.requests
     driver.close()
@@ -85,10 +88,10 @@ Efficiently accesses websites included in 'websites' list by using 'threadAmt' a
 Also saves every occurring https request per website in a dictionary, which the function then returns.
 """
 def multiScan(websites, threadAmt):
-    result = dict()
 
     manager = multiprocessing.Manager()
     q = manager.Queue()
+    result = manager.dict()
 
     for website in websites:
         q.put(website)
@@ -105,4 +108,4 @@ def multiScan(websites, threadAmt):
 
     for process in threads:
         process.join()
-    return result
+    return dict(result)
