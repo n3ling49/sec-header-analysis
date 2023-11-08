@@ -1,14 +1,9 @@
-from seleniumwire import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from seleniumwire.undetected_chromedriver.v2 import Chrome, ChromeOptions
 import utils as utils
-import threading
 import json
-import queue
 import traceback
 import multiprocessing
-import time
 from filelock import FileLock
 
 def scanWebsites(result, website_queue, thread_nr):
