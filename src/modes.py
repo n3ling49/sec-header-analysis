@@ -1,5 +1,6 @@
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
 from seleniumwire.undetected_chromedriver.v2 import Chrome, ChromeOptions
 import utils as utils
 import threading
@@ -18,6 +19,7 @@ def scanWebsites(result, website_queue, thread_nr):
     options.add_argument('--disable-dev-shm-usage')
     #the following argument is needed to access websites with invalid certificates
     options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--disable-gpu')
     #the following argument is needed to hide headless chrome
     user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
     options.add_argument(f'user-agent={user_agent}')
@@ -31,7 +33,7 @@ def scanWebsites(result, website_queue, thread_nr):
         driver = Chrome(options=options)
     finally:
         lock.release()
-    #driver.set_page_load_timeout(60)
+    driver.set_page_load_timeout(60)
 
     while True:
         item = website_queue.get()
@@ -75,10 +77,13 @@ def scanWebsites(result, website_queue, thread_nr):
                 utils.save_single_file(req_and_res, website, "", website_nr)
         except Exception as e:
             print(f'caught {type(e)}: e')
-            traceback.print_exc()
+            if not type(e) == TimeoutException:
+                traceback.print_exc()
+            website_result.append({
+                "error": f'{type(e)}'
+            })
         
         result[website] = website_result
-        print(len(result[website]))
 
         del driver.requests
     driver.close()
