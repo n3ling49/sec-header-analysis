@@ -69,7 +69,6 @@ def scanWebsites(result, website_queue, thread_nr):
                     req_and_res["response"] = json.dumps(response_json)
                 
                 website_result.append(req_and_res)
-                utils.save_single_file(req_and_res, website, "", website_nr)
         except Exception as e:
             print(f'caught {type(e)}: e')
             if not type(e) == TimeoutException:
@@ -78,6 +77,7 @@ def scanWebsites(result, website_queue, thread_nr):
                 "error": f'{type(e)}'
             })
         
+        utils.save_single_file(website_result, website, "", website_nr)
         result[website] = website_result
 
         del driver.requests
