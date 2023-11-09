@@ -37,6 +37,8 @@ total_requests = 0
 total_responses = 0
 total_header_length = 0
 
+multiple_requests = dict()
+
 security_headers = []
 headers_dir = os.path.join(this_dir, '../../resources/securityheaders.json')
 with open(headers_dir) as file:
@@ -85,6 +87,16 @@ for dir in subdirs:
                                 if header in security_headers:
                                     total_header_length += len(req_res_err_obj["headers"][header])
                     domain_amount = len(req_per_domain.keys())
+
+                    #count multiple requests per domain. Only exact matches. Subdomains each count as a separate domain.
+                    for domain in req_per_domain:
+                        request_amount = req_per_domain[domain]
+                        if request_amount > 1:
+                            if request_amount in multiple_requests:
+                                multiple_requests[request_amount] += 1
+                            else:
+                                multiple_requests[request_amount] = 1
+                    
                     if domain_amount > 0:
                         average_req_per_domain = request_amt / domain_amount
                         accumulated_average_requests_per_domain += average_req_per_domain
@@ -123,3 +135,13 @@ if valid_site_amount > 0:
     print("Average requests per Domain per Website: "+str(accumulated_average_requests_per_domain / valid_site_amount))
 if total_requests > 0:
     print(f'Average amount of sec-headers set per request: {total_sec_headers / total_requests}')
+print()
+print("Multiple requests per domain:")
+multiple_request_keys = list(multiple_requests.keys())
+multiple_request_keys.sort()
+total_times_multiple_requests = 0
+for request_amount in multiple_request_keys:
+    total_times_multiple_requests += multiple_requests[request_amount]
+print(f'Total times requests were sent multiple times to the same domain (2+ times): {total_times_multiple_requests} ({round((total_times_multiple_requests / valid_site_amount) * 100, 2)}% of all sites, where at least 1 response was recorded)')
+for request_amount in multiple_request_keys:
+    print(f'{request_amount} times: {multiple_requests[request_amount]}')
