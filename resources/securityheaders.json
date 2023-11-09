@@ -18,5 +18,16 @@
   "sec-fetch-mode",
   "sec-fetch-user",
   "sec-fetch-dest",
-  "service-worker-navigation-preload"
+  "service-worker-navigation-preload",
+  "referrer-policy",
+  "content-type",
+  "set-cookie",
+  "access-control-allow-origin",
+  "server",
+  "x-aspnet-version",
+  "x-aspnetmvc-version",
+  "x-dns-prefetch-control",
+  "public-key-pins",
+  "x-content-type",
+  "date"
 ]}
