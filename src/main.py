@@ -6,11 +6,18 @@ import script as script
 import requests
 from zipfile import ZipFile
 import os
+import clear_results as clear_results
 
 WEBSITEAMT = 50
 TRANCO_URL = "https://tranco-list.eu/top-1m.csv.zip"
+CLEAR = True
+CLEAR_EXCEPTIONS = []
 
 if __name__ == '__main__':
+    # Clearing the results folder
+    if CLEAR:
+        print("Clearing results folder")
+        clear_results.clear(CLEAR_EXCEPTIONS)
     # Pulling the latest top 1 million websites list from Tranco
     r = requests.get(TRANCO_URL, allow_redirects=True)
     open('top-1m.csv.zip', 'wb').write(r.content)
