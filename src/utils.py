@@ -2,6 +2,8 @@ import json
 import time
 import os
 import math
+import shutil
+import stat
 
 TIME = time.strftime("%Y-%m-%d_%H:%M:%S_", time.localtime())
 
@@ -52,3 +54,9 @@ def round_up(n, decimals=0):
 def round_down(n, decimals=0):
     multiplier = 10**decimals
     return math.floor(n * multiplier) / multiplier
+
+def init_process_dir(pid):
+    os.mkdir("/app/processdata/PROFILE"+str(pid))
+    #os.mkdir("/root/.local/PROFILE"+str(pid))
+    shutil.copyfile("/usr/bin/chromedriver", "/app/processdata/PROFILE"+str(pid)+"/chromedriver")
+    os.chmod("/app/processdata/PROFILE"+str(pid)+"/chromedriver", os.stat("/usr/bin/chromedriver").st_mode | stat.S_IXUSR)

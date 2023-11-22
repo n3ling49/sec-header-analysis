@@ -21,7 +21,7 @@ RUN pip install filelock
 RUN apt-get update
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN apt-get install ./google-chrome-stable_current_amd64.deb -y
-RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/118.0.5993.70/linux64/chromedriver-linux64.zip
+RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/119.0.6045.105/linux64/chromedriver-linux64.zip
 RUN apt-get install unzip -y
 RUN unzip chromedriver-linux64.zip
 RUN mv chromedriver-linux64/chromedriver /usr/bin/chromedriver

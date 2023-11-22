@@ -7,7 +7,8 @@ import multiprocessing
 from filelock import FileLock
 
 def scanWebsites(result, website_queue, thread_nr):
-
+    print('cloning executable for thread '+str(thread_nr+1)+'...')
+    utils.init_process_dir(thread_nr)
     while True:
         options = ChromeOptions()
         options.add_argument('--headless')
@@ -20,16 +21,17 @@ def scanWebsites(result, website_queue, thread_nr):
         #the following argument is needed to hide headless chrome
         user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
         options.add_argument(f'user-agent={user_agent}')
+        options.add_argument('--user-data-dir=/app/processdata/PROFILE'+str(thread_nr))
         
         driver = None
-        file = "/usr/bin/chromedriver"
-        lockfile = "/usr/bin/chromedriver.lock"
-        lock = FileLock(lockfile)
-        lock.acquire()
-        try:
-            driver = Chrome(options=options)
-        finally:
-            lock.release()
+        #file = "/usr/bin/chromedriver"
+        #lockfile = "/usr/bin/chromedriver.lock"
+        #lock = FileLock(lockfile)
+        #lock.acquire()
+        #try:
+        driver = Chrome(driver_executable_path='/app/processdata/PROFILE'+str(thread_nr)+'/chromedriver', version_main=119, options=options)
+        #finally:
+        #    lock.release()
         driver.set_page_load_timeout(60)
 
         item = website_queue.get()
@@ -82,7 +84,7 @@ def scanWebsites(result, website_queue, thread_nr):
         result[website] = website_result
 
         del driver.requests
-    driver.close()
+        driver.close()
 
 """
 Efficiently accesses websites included in 'websites' list by using 'threadAmt' amount of threads.
