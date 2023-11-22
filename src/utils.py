@@ -7,10 +7,10 @@ import stat
 
 TIME = time.strftime("%Y-%m-%d_%H:%M:%S_", time.localtime())
 
-def loadWebsites(website_amt):
+def loadWebsites(end, start = 0):
     with open('/app/resources/top-1m.csv') as file:
         lines = file.readlines()
-        return lines[len(lines)-website_amt:]
+        return lines[start:end]
 def get(website):
     return website.split(",")[1].replace("\n", "")
 
