@@ -1,3 +1,5 @@
 *results.json
 results/*
 /src/__pycache__/*
+processdata/*
+/resources/top-1m.csv
