@@ -35,7 +35,19 @@ if __name__ == '__main__':
 
     #fetching the websites
     startTime2 = time.time()
-    result = modes.multiScan(websites, PROCESS_AMT)
+
+    for thread_nr in range(PROCESS_AMT):
+        print('cloning executable for thread '+str(thread_nr+1)+'...')
+        utils.init_process_dir(thread_nr)
+    
+    batch_size = 100 * PROCESS_AMT
+    website_batches = utils.divide_chunks(websites, batch_size)
+
+    result = dict()
+    for batch in website_batches:
+        result.update(modes.multiScan(batch, PROCESS_AMT))
+
     stopTime2 = time.time()
+
     print("\nTime Multi: "+str(stopTime2-startTime2))
     script.getfailed(result)

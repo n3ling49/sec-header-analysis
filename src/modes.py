@@ -7,8 +7,6 @@ import multiprocessing
 from filelock import FileLock
 
 def scanWebsites(result, website_queue, thread_nr):
-    print('cloning executable for thread '+str(thread_nr+1)+'...')
-    utils.init_process_dir(thread_nr)
     while True:
         options = ChromeOptions()
         options.add_argument('--headless')

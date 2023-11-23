@@ -55,6 +55,10 @@ def round_down(n, decimals=0):
     multiplier = 10**decimals
     return math.floor(n * multiplier) / multiplier
 
+def divide_chunks(l, n):
+    for i in range(0, len(l), n):  
+        yield l[i:i + n]
+
 def init_process_dir(pid):
     os.mkdir("/app/processdata/PROFILE"+str(pid))
     #os.mkdir("/root/.local/PROFILE"+str(pid))
