@@ -7,9 +7,10 @@ import multiprocessing
 from filelock import FileLock
 import os
 
-def scanWebsites(result, website_queue, thread_nr):
-    print('cloning executable for thread '+str(thread_nr+1)+'...')
-    utils.init_process_dir(thread_nr)
+def scanWebsites(result, website_queue, thread_nr, init_dir):
+    if init_dir:
+        print('cloning executable for thread '+str(thread_nr+1)+'...')
+        utils.init_process_dir(thread_nr)
     while True:
         try:
             options = ChromeOptions()
@@ -90,7 +91,8 @@ def scanWebsites(result, website_queue, thread_nr):
             utils.save_single_file(website_result, website, "", website_nr)
             result[website] = website_result
 
-            del driver.requests
+            #del driver.requests
+            #driver.close()
             driver.quit()
         except Exception as e:
             print(f'(Thread {thread_nr}) caught {type(e)}: e')
@@ -99,12 +101,15 @@ def scanWebsites(result, website_queue, thread_nr):
             website_result.append({
                 "error": f'{type(e)}'
             })
+            #del driver.requests
+            #driver.close()
+            driver.quit()
 
 """
 Efficiently accesses websites included in 'websites' list by using 'threadAmt' amount of threads.
 Also saves every occurring https request per website in a dictionary, which the function then returns.
 """
-def multiScan(websites, threadAmt):
+def multiScan(websites, threadAmt, init_dir):
 
     manager = multiprocessing.Manager()
     q = manager.Queue()
@@ -119,7 +124,7 @@ def multiScan(websites, threadAmt):
     for i in range(0, threadAmt):
         #thread = threading.Thread(target=scanWebsites, args=(result, q, i))
         #threads.append(thread)
-        process = multiprocessing.Process(target=scanWebsites, args=(result, q, i))
+        process = multiprocessing.Process(target=scanWebsites, args=(result, q, i, init_dir))
         process.start()
         threads.append(process)
 
