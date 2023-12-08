@@ -16,6 +16,8 @@ RUN pip install selenium
 RUN pip install requests
 RUN pip install undetected-chromedriver
 RUN pip install filelock
+RUN pip install psutil
+RUN pip install pgrep
 
 #chrome related dependencies
 RUN apt-get update

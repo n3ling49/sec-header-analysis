@@ -6,13 +6,23 @@ import traceback
 import multiprocessing
 from filelock import FileLock
 import os
+import logging
+import sys
+import threading
+import time
+import psutil
 
 def scanWebsites(result, website_queue, thread_nr, init_dir):
     if init_dir:
-        print('cloning executable for thread '+str(thread_nr+1)+'...')
+        logging.info('cloning executable for thread '+str(thread_nr+1)+'...')
         utils.init_process_dir(thread_nr)
+    counter = 0
     while True:
         try:
+            counter+=1
+            logging.info(f'Process {thread_nr+1} batch webiste count: {counter}')
+            logging.info(f'Process {thread_nr+1} running Threads: {threading.active_count()}')
+            logging.info(f'Process {thread_nr+1} RAM memory % used:', psutil.virtual_memory()[2])
             options = ChromeOptions()
             options.add_argument('--headless=new')
             #the following two arguments somehow fix the webdriver issue in docker
@@ -48,24 +58,26 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             #finally:
             #    lock.release()
             driver.set_page_load_timeout(60)
+            driver.set_script_timeout(60)
+            driver.implicitly_wait(60)
 
             item = website_queue.get()
 
             if item is None:
-                print(str(thread_nr+1) + ' finished')
+                logging.info(str(thread_nr+1) + ' finished')
                 break
             
-            print("requesting nr. " + item.replace("\n", "").replace(",", ", ") + " (Thread "+str(thread_nr+1)+")...")
+            logging.info("requesting nr. " + item.replace("\n", "").replace(",", ", ") + " (Thread "+str(thread_nr+1)+")...")
             website_nr = item.split(",")[0]
             website = utils.get(item)
             website_result = list()
 
             driver.get('https://' + website)
-            print("Requests ("+ website +"): " + str(len(driver.requests)))
+            logging.info("Requests ("+ website +"): " + str(len(driver.requests)))
 
             if len(driver.requests) == 0:
                 driver.get('http://' + website)
-                print("Requests HTTP ("+ website +"): " + str(len(driver.requests)))
+                logging.info("Requests HTTP ("+ website +"): " + str(len(driver.requests)))
 
             for request in driver.requests:
                 req_and_res = dict()
@@ -95,7 +107,7 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             #driver.close()
             driver.quit()
         except Exception as e:
-            print(f'(Thread {thread_nr}) caught {type(e)}: e')
+            logging.exception(f'(Thread {thread_nr+1}) caught {type(e)}: e')
             if not type(e) == TimeoutException:
                 traceback.print_exc()
             website_result.append({
@@ -104,6 +116,7 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             #del driver.requests
             #driver.close()
             driver.quit()
+    logging.info(f'(Thread {thread_nr+1}) broke outside while loop')
 
 """
 Efficiently accesses websites included in 'websites' list by using 'threadAmt' amount of threads.
@@ -128,6 +141,10 @@ def multiScan(websites, threadAmt, init_dir):
         process.start()
         threads.append(process)
 
+    while not q.empty():
+        time.sleep(60)
+
     for process in threads:
-        process.join()
+        process.join(60)
+        process.close()
     return dict(result)

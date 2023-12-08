@@ -4,6 +4,7 @@ import os
 import math
 import shutil
 import stat
+from config import RESULT_FOLDER
 
 TIME = time.strftime("%Y-%m-%d_%H:%M:%S_", time.localtime())
 
@@ -15,19 +16,32 @@ def get(website):
     return website.split(",")[1].replace("\n", "")
 
 def save(dict, name = ""):
-    name_final = name + TIME
+    name_final = None
+    if RESULT_FOLDER == "":
+        name_final = name + TIME
+    else: 
+        name_final = name + RESULT_FOLDER
+
     with open("/app/results/"+name_final+"results.json","w") as write_file:
         json.dump(dict, write_file, indent=4)
 
 def save_multiple_files(dict, name = ""):
-    name_final = name + TIME
+    name_final = None
+    if RESULT_FOLDER == "":
+        name_final = name + TIME
+    else: 
+        name_final = name + RESULT_FOLDER
+
     for key in dict.keys():
         with open("/app/results/"+name_final+"/"+key+".json","w") as write_file:
             json.dump(dict[key], write_file, indent=4)
 
 def save_single_file(dict_entry, key, name = "", website_nr = ""):
 
-    result_folder_name = name + TIME
+    result_folder_name = None
+    if RESULT_FOLDER == "":
+        result_folder_name = name + TIME
+    else: result_folder_name = name + RESULT_FOLDER
 
     if website_nr != "":
         big_start_range = str(int(round_down(int(website_nr) - 1, -5) + 1))
