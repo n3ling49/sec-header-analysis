@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import psutil
+import signal
 
 def scanWebsites(result, website_queue, thread_nr, init_dir):
     if init_dir:
@@ -23,6 +24,7 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             logging.info(f'Process {thread_nr+1} batch webiste count: {counter}')
             logging.info(f'Process {thread_nr+1} running Threads: {threading.active_count()}')
             logging.info(f'Process {thread_nr+1} RAM memory % used:', psutil.virtual_memory()[2])
+            logging.info(f'Process {thread_nr+1} Active children: {len(multiprocessing.active_children())}')
             options = ChromeOptions()
             options.add_argument('--headless=new')
             #the following two arguments somehow fix the webdriver issue in docker
@@ -145,6 +147,7 @@ def multiScan(websites, threadAmt, init_dir):
         time.sleep(60)
 
     for process in threads:
+        process.terminate()
         process.join(60)
         process.close()
     return dict(result)

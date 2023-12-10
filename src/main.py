@@ -13,6 +13,8 @@ import threading
 import psutil
 import pgrep
 import signal
+from subprocess import Popen, PIPE
+import multiprocessing
 
 TRANCO_URL = "https://tranco-list.eu/top-1m.csv.zip"
 
@@ -58,11 +60,21 @@ if __name__ == '__main__':
         logging.info('===========================')
         processes = pgrep.pgrep('chrome')
         logging.info(f'Chrome processes running: {len(processes)}')
+        logging.info(f'Active children: {len(multiprocessing.active_children())}')
         logging.info('===========================')
         #init_dir = i == 0
         logging.info('Clearing active chrome processes...')
         for p in processes:
-            os.kill(p, signal.SIGKILL)
+            os.kill(p, signal.SIGPOLL)
+            process = psutil.Process(p)
+            parent = psutil.Process(process.ppid())
+            print(parent.status())
+            if parent.status() == psutil.STATUS_ZOMBIE:
+                parent.kill()
+                print(psutil.pid_exists(p))
+            parent.kill()
+        os.system("pkill -29 chrome")
+        time.sleep(5)
         logging.info('===========================')
         processes = pgrep.pgrep('chrome')
         logging.info(f'Chrome processes running: {len(processes)}')
