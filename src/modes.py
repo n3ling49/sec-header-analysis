@@ -4,14 +4,9 @@ import utils as utils
 import json
 import traceback
 import multiprocessing
-from filelock import FileLock
 import os
 import logging
-import sys
-import threading
 import time
-import psutil
-import signal
 
 def scanWebsites(result, website_queue, thread_nr, init_dir):
     if init_dir:
@@ -43,11 +38,7 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             options.add_argument('--user-data-dir=/app/processdata/PROFILE'+str(thread_nr))
             
             driver = None
-            #file = "/usr/bin/chromedriver"
-            #lockfile = "/usr/bin/chromedriver.lock"
-            #lock = FileLock(lockfile)
-            #lock.acquire()
-            #try:
+
             driver = Chrome(driver_executable_path='/app/processdata/PROFILE'+str(thread_nr)+'/chromedriver', version_main=119, options=options)
             if os.path.islink('/app/processdata/PROFILE'+str(thread_nr)+'/SingletonCookie'):
                 os.unlink('/app/processdata/PROFILE'+str(thread_nr)+'/SingletonCookie')
@@ -57,16 +48,12 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
                 os.unlink('/app/processdata/PROFILE'+str(thread_nr)+'/SingletonLock')
             if os.path.islink('/app/processdata/PROFILE'+str(thread_nr)+'/SingletonSocket'):
                 os.unlink('/app/processdata/PROFILE'+str(thread_nr)+'/SingletonSocket')
-            #finally:
-            #    lock.release()
+
             driver.set_page_load_timeout(60)
-            #driver.set_script_timeout(60)
-            #driver.implicitly_wait(60)
 
             item = website_queue.get()
 
             if item is None:
-                #logging.info(str(thread_nr+1) + ' finished')
                 break
             
             logging.info("requesting nr. " + item.replace("\n", "").replace(",", ", ") + " (Thread "+str(thread_nr+1)+")...")
@@ -105,18 +92,19 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             utils.save_single_file(website_result, website, "", website_nr)
             result[website] = website_result
 
-            #del driver.requests
-            #driver.close()
             driver.quit()
         except Exception as e:
-            logging.exception(f'(Thread {thread_nr+1}) caught {type(e)}: e')
             if not type(e) == TimeoutException:
+                logging.exception(f'(Thread {thread_nr+1}) caught {type(e)}: e')
                 traceback.print_exc()
+            else:
+                logging.info(f'(Thread {thread_nr+1}) caught {type(e)}: e')
             website_result.append({
                 "error": f'{type(e)}'
             })
-            #del driver.requests
-            #driver.close()
+            utils.save_single_file(website_result, website, "", website_nr)
+            result[website] = website_result
+
             driver.quit()
     logging.info(f'(Thread {thread_nr+1}) broke outside while loop (finished)')
 
@@ -137,8 +125,7 @@ def multiScan(websites, threadAmt, init_dir):
 
     threads = list()
     for i in range(0, threadAmt):
-        #thread = threading.Thread(target=scanWebsites, args=(result, q, i))
-        #threads.append(thread)
+
         process = multiprocessing.Process(target=scanWebsites, args=(result, q, i, init_dir))
         process.start()
         threads.append(process)
@@ -149,7 +136,8 @@ def multiScan(websites, threadAmt, init_dir):
     logging.info('queue empty')
 
     for process in threads:
-        #process.terminate()
+        process.terminate()
         process.join(60)
-        #process.close()
+        process.kill()
+
     return dict(result)
