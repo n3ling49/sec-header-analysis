@@ -75,7 +75,12 @@ def find_security_headers(initial=False, follow_redirects=False):
             for file in files:
                 website_name = file.split(".json")[0]
                 with open(os.path.join(results_dir, dir, subdir, file), "r") as f:
-                    data = list(json.load(f))
+                    data = None
+                    try:
+                        data = list(json.load(f))
+                    except:
+                        print(f'error in {subdir}/{file}')
+                        continue
                     for req_res_err in data:
                         if type(req_res_err) == str:
                             req_res_err = json.loads(req_res_err)
@@ -116,6 +121,7 @@ def find_security_headers(initial=False, follow_redirects=False):
                             chunk["ids"] = []
                             chunks.append(chunk)
                         for header in headers:
+                            header = header.lower()
                             if header in chunks[-1]["recommended"]:
                                 chunks[-1]["recommended"][header] += 1
                             elif header in chunks[-1]["deprecated"]:
@@ -155,15 +161,15 @@ def print_sec_headers():
             #print("info_revealing:")
             #print(chunk["info_revealing"])
             #print("")
-            for header in chunk["recommended"]:
-                recommended_percentage[header].append(round(chunk["recommended"][header]/chunk["valid_responses"],4))
+            #for header in chunk["recommended"]:
+            #    recommended_percentage[header].append(round(chunk["recommended"][header]/chunk["valid_responses"],4))
             #for header in chunk["deprecated"]:
             #    deprecated_percentage[header].append(round(chunk["deprecated"][header]/chunk["valid_responses"],4))
             #for header in chunk["info_revealing"]:
             #    info_revealing_percentage[header].append(round(chunk["info_revealing"][header]/chunk["valid_responses"],4))
 
-            #for header in chunk["recommended"]:
-            #    recommended_percentage[header].append(chunk["recommended"][header])
+            for header in chunk["recommended"]:
+                recommended_percentage[header].append(chunk["recommended"][header])
             #for header in chunk["deprecated"]:
             #    deprecated_percentage[header].append(chunk["deprecated"][header])
             #for header in chunk["info_revealing"]:
