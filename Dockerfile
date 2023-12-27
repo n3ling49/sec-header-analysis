@@ -30,3 +30,6 @@ RUN mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
 RUN chown root:root /usr/bin/chromedriver
 RUN chmod +x /usr/bin/chromedriver
 RUN chmod a+x /usr/src/app/src/start.sh
+
+RUN apt-get install -y xvfb
+ENV DISPLAY=:0

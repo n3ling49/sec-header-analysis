@@ -22,7 +22,7 @@ def scanWebsites(result, website_queue, thread_nr, init_dir):
             #logging.info(f'Process {thread_nr+1} RAM memory % used:', psutil.virtual_memory()[2])
             #ogging.info(f'Process {thread_nr+1} Active children: {len(multiprocessing.active_children())}')
             options = ChromeOptions()
-            options.add_argument('--headless=new')
+            #options.add_argument('--headless=new')
             #the following two arguments somehow fix the webdriver issue in docker
             #options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
