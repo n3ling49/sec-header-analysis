@@ -10,4 +10,4 @@ services:
       - ./processdata:/app/processdata
       - ./src:/app/src
       - ./resources:/app/resources
-    command: python /app/src/main.py
+    command: /bin/bash /app/src/start.sh

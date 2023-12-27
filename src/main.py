@@ -12,7 +12,7 @@ import logging
 import threading
 import psutil
 import pgrep
-import signal
+import multiprocessing
 
 TRANCO_URL = "https://tranco-list.eu/top-1m.csv.zip"
 
@@ -53,21 +53,21 @@ if __name__ == '__main__':
     result = dict()
     for i in range(0, len(website_chunks)):
         logging.info('New Website Chunk')
+        result.update(modes.multiScan(website_chunks[i], PROCESS_AMT, True))
         logging.info(f'Main Process running Threads: {threading.active_count()}')
         logging.info(f'Main Process RAM memory % used:', psutil.virtual_memory()[2])
         logging.info('===========================')
         processes = pgrep.pgrep('chrome')
         logging.info(f'Chrome processes running: {len(processes)}')
+        logging.info(f'Active children: {len(multiprocessing.active_children())}')
         logging.info('===========================')
-        #init_dir = i == 0
         logging.info('Clearing active chrome processes...')
-        for p in processes:
-            os.kill(p, signal.SIGKILL)
+        os.system("pkill -29 chrome")
+        time.sleep(5)
         logging.info('===========================')
         processes = pgrep.pgrep('chrome')
         logging.info(f'Chrome processes running: {len(processes)}')
         logging.info('===========================')
-        result.update(modes.multiScan(website_chunks[i], PROCESS_AMT, True))
         logging.info('Clearing processdata folder')
         clear_results.clear('../processdata/')
     

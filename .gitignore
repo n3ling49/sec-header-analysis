@@ -1,5 +1,9 @@
 *results.json
 results/*
 /src/__pycache__/*
+src/evaluation/__pycache__/*
+src/evaluation/.ipynb_checkpoints/*
+src/evaluation/*.txt
 processdata/*
 /resources/top-1m.csv
+/resources/rescan.csv
