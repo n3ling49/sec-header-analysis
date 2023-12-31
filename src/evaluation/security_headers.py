@@ -36,7 +36,7 @@ recommended_headers = [
 CHUNK_SIZE = 4
 
 def find_security_headers(initial=False, follow_redirects=False):
-    results_folder = "ba_dataset/"
+    results_folder = "headless/"
     this_dir = os.path.dirname(os.path.abspath(__file__))
     results_dir = os.path.join(this_dir, '../../results/'+results_folder)
 
@@ -202,6 +202,6 @@ def convert_helme_data():
     open("helme.txt", "w").write(str(chunks))
 
 
-find_security_headers(True, False)
+find_security_headers(True, True)
 #convert_helme_data()
 print_sec_headers()

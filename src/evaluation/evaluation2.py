@@ -122,7 +122,7 @@ def print_status_codes(status_codes):
     print()
     print(f'total responses: {total_responses}')
 
-initial_status_codes(False, False)
+initial_status_codes(True, True)
 with open("codes.txt", "r") as f:
     status_codes = eval(f.read())
     print_status_codes(status_codes)

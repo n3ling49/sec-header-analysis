@@ -22,6 +22,8 @@ def is_initial_request(request, domain):
 def find_initial_response(initial_req_res_err, req_res_err_arr, domain):
     #print(initial_req_res_err)
     #print(type(initial_req_res_err["request"]))
+    if type(initial_req_res_err["request"]) == str:
+        initial_req_res_err["request"] = json.loads(initial_req_res_err["request"])
     if not is_initial_request(initial_req_res_err["request"], domain):
         return None
     if not "response" in initial_req_res_err:
