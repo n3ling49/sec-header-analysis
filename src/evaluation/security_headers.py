@@ -36,13 +36,21 @@ recommended_headers = [
 CHUNK_SIZE = 4
 
 def find_security_headers(initial=False, follow_redirects=False):
-    results_folder = "headless/"
+    results_folder = "ba_dataset/"
     this_dir = os.path.dirname(os.path.abspath(__file__))
     results_dir = os.path.join(this_dir, '../../results/'+results_folder)
+
+    security_headers = []
+    headers_dir = os.path.join(this_dir, '../../resources/securityheaders.json')
+    with open(headers_dir) as file:
+        security_headers = json.loads(file.read())["headers"]
+
+    other_headers = []
 
     subdirs = os.listdir(results_dir)
     initial_response_fail = 0
     missing_response = 0
+    wrong_status = 0
     chunks = []
 
     chunk_id = 0
@@ -57,6 +65,11 @@ def find_security_headers(initial=False, follow_redirects=False):
     chunk["info_revealing"] = dict()
     for header in info_revealing_headers:
         chunk["info_revealing"][header] = 0
+    chunk["others"] = dict()
+    for header in security_headers:
+        if not header in chunk["recommended"] and not header in chunk["deprecated"] and not header in chunk["info_revealing"]:
+            chunk["others"][header] = 0
+            other_headers.append(header)
     chunk["valid_responses"] = 0
     chunk["ids"] = []
     chunks.append(chunk)
@@ -81,6 +94,34 @@ def find_security_headers(initial=False, follow_redirects=False):
                     except:
                         print(f'error in {subdir}/{file}')
                         continue
+                    if not initial:
+                        is_valid = False
+                        for req_res_err in data:
+                            if type(req_res_err) == str:
+                                req_res_err = json.loads(req_res_err)
+                            if not "request" in req_res_err:
+                                continue
+                            if type(req_res_err["request"]) == str:
+                                req_res_err["request"] = json.loads(req_res_err["request"])
+                            if not "response" in req_res_err:
+                                continue
+                            response = None
+                            if eval_utils.is_initial_request(req_res_err["request"], website_name):
+                                response = eval_utils.find_initial_response(req_res_err, data, website_name)
+                            else:
+                                continue
+                            if response is None:
+                                break
+                            if type(response) == str:
+                                response = json.loads(response)
+                            if str(response["status_code"])[0] == "4":
+                                break
+                            is_valid = True
+                            break
+                        if not is_valid:
+                            continue
+
+
                     for req_res_err in data:
                         if type(req_res_err) == str:
                             req_res_err = json.loads(req_res_err)
@@ -102,6 +143,10 @@ def find_security_headers(initial=False, follow_redirects=False):
                                     break
                         if type(response) == str:
                             response = json.loads(response)
+                        
+                        if initial and str(response["status_code"])[0] == "4":
+                            wrong_status += 1
+                            break
                         headers = response["headers"]
                         if type(headers) == str:
                             headers = json.loads(headers)
@@ -117,6 +162,9 @@ def find_security_headers(initial=False, follow_redirects=False):
                             chunk["info_revealing"] = dict()
                             for header in info_revealing_headers:
                                 chunk["info_revealing"][header] = 0
+                            chunk["others"] = dict()
+                            for header in other_headers:
+                                chunk["others"][header] = 0
                             chunk["valid_responses"] = 0
                             chunk["ids"] = []
                             chunks.append(chunk)
@@ -128,6 +176,8 @@ def find_security_headers(initial=False, follow_redirects=False):
                                 chunks[-1]["deprecated"][header] += 1
                             elif header in chunks[-1]["info_revealing"]:
                                 chunks[-1]["info_revealing"][header] += 1
+                            elif header in chunks[-1]["others"]:
+                                chunks[-1]["others"][header] += 1
                         chunks[-1]["valid_responses"] += 1
                         if initial:
                             break
@@ -136,8 +186,20 @@ def find_security_headers(initial=False, follow_redirects=False):
     open("headers.txt", "w").write(str(chunks))
     print(f'initial response fails: {initial_response_fail}')
     print(f'missing responses: {missing_response}')
+    print(f'wrong status: {wrong_status}')
+    return other_headers
 
-def print_sec_headers():
+def load_other_headers():
+    other_headers = []
+    with open("headers.txt", "r") as f:
+        chunks = eval(f.read())
+        for chunk in chunks:
+            for header in chunk["others"]:
+                if not header in other_headers:
+                    other_headers.append(header)
+    return other_headers
+
+def print_sec_headers(other_headers):
 
     recommended_percentage = dict()
     for header in recommended_headers:
@@ -148,6 +210,9 @@ def print_sec_headers():
     info_revealing_percentage = dict()
     for header in info_revealing_headers:
         info_revealing_percentage[header] = []
+    other_percentage = dict()
+    for header in other_headers:
+        other_percentage[header] = []
 
     with open("headers.txt", "r") as f:
         chunks = eval(f.read())
@@ -167,19 +232,41 @@ def print_sec_headers():
             #    deprecated_percentage[header].append(round(chunk["deprecated"][header]/chunk["valid_responses"],4))
             #for header in chunk["info_revealing"]:
             #    info_revealing_percentage[header].append(round(chunk["info_revealing"][header]/chunk["valid_responses"],4))
+            #for header in chunk["others"]:
+            #    other_percentage[header].append(round(chunk["others"][header]/chunk["valid_responses"],4))
 
             for header in chunk["recommended"]:
                 recommended_percentage[header].append(chunk["recommended"][header])
-            #for header in chunk["deprecated"]:
-            #    deprecated_percentage[header].append(chunk["deprecated"][header])
-            #for header in chunk["info_revealing"]:
-            #    info_revealing_percentage[header].append(chunk["info_revealing"][header])
-        print("recommended:")
-        print(recommended_percentage)
-        #print("deprecated:")
-        #print(deprecated_percentage)
-        #print("info_revealing:")
-        #print(info_revealing_percentage)
+            for header in chunk["deprecated"]:
+                deprecated_percentage[header].append(chunk["deprecated"][header])
+            for header in chunk["info_revealing"]:
+                info_revealing_percentage[header].append(chunk["info_revealing"][header])
+            for header in chunk["others"]:
+                other_percentage[header].append(chunk["others"][header])
+        print('===========================')
+        print("RECOMMENDED:")
+        print('===========================')
+        for header in recommended_percentage:
+            print(header)
+            print(recommended_percentage[header])
+        print('===========================')
+        print("DEPRECATED:")
+        print('===========================')
+        for header in deprecated_percentage:
+            print(header)
+            print(deprecated_percentage[header])
+        print('===========================')
+        print("INFO REVEALING:")
+        print('===========================')
+        for header in info_revealing_percentage:
+            print(header)
+            print(info_revealing_percentage[header])
+        print('===========================')
+        print("OTHERS:")
+        print('===========================')
+        for header in other_percentage:
+            print(header)
+            print(other_percentage[header])
 
 def convert_helme_data():
     chunks = []
@@ -202,6 +289,8 @@ def convert_helme_data():
     open("helme.txt", "w").write(str(chunks))
 
 
-find_security_headers(True, True)
+#find_security_headers(True, True)
 #convert_helme_data()
-print_sec_headers()
+#print_sec_headers()
+print_sec_headers(find_security_headers())
+#print_sec_headers(load_other_headers())
