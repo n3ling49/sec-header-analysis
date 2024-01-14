@@ -1,21 +1,18 @@
 # sec-header-analysis
 
-This script is being used to gather data on **security headers** in http requests as foundation for my **bachelor thesis**.
+This tool is being used to gather data on **security headers** in http requests as foundation for my **bachelor thesis**.
 
-On execution it will access the top 1 million most visited sites according to [this site](https://tranco-list.eu/) through a headless browser and save the information of all http requests made during this process for further analysis.
+On execution it will access the top 1 million most visited sites according to [this site](https://tranco-list.eu/) through a headless browser and save the header information of all HTTP requests made during this process for further analysis.
 
 # How to setup
 
-Make sure to run this script on a **linux** system and have **[docker](https://docs.docker.com/engine/install/)** installed.
+Make sure to have **[docker](https://docs.docker.com/engine/install/)** and **[docker compose](https://docs.docker.com/compose/)** installed.
+
+Configure website and process amount in the /src/config.py file.
 
 # How to start
 
-This will build the **secheader** docker image, if it doesn't exist already and/or run the image immediately:
+This will build the **secheader** docker image, if it doesn't exist already and run the image immediately:
 ```console
-~$ ./start.sh
-```
-
-To **force building** the image (even if it already exists) execute:
-```console
-~$ ./start.sh build
+~$ docker compose up
 ```
