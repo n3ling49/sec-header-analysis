@@ -2,40 +2,9 @@ import os
 import json
 import eval_utils
 
-def success():
-    results_folder = "ba_dataset/"
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    results_dir = os.path.join(this_dir, '../../results/'+results_folder)
+CHUNK_SIZE = 4
 
-    subdirs = os.listdir(results_dir)
-
-    success_percentage = dict()
-    dir_counter = 0
-    for dir in subdirs:
-        sub_subdirs = os.listdir(os.path.join(results_dir, dir))
-        #print(sub_subdirs)
-        print(dir)
-        subdir_counter = 0
-        success_counter = 0
-        for subdir in sub_subdirs:
-            files = os.listdir(os.path.join(results_dir, dir, subdir))
-            #print(files)
-            #print(subdir)
-            success_counter += len(files)
-            if subdir_counter == 49:
-                success_percentage[f'{dir_counter*100000+1}-{dir_counter*100000+50000}'] = success_counter/50000
-                success_counter = 0
-            elif subdir_counter == 99:
-                success_percentage[f'{dir_counter*100000+50001}-{dir_counter*100000+100000}'] = success_counter/50000
-                success_counter = 0
-            subdir_counter += 1
-        dir_counter += 1
-    for key in success_percentage.keys():
-        print(f'{key}: {success_percentage[key]}')
-    print(str(success_percentage.keys()))
-    print(str(success_percentage.values()))
-
-def initial_status_codes(initial=False, follow_redirects=False):
+def initial_status_codes(initial=True, follow_redirects=True):
     results_folder = "ba_dataset/"
     this_dir = os.path.dirname(os.path.abspath(__file__))
     results_dir = os.path.join(this_dir, '../../results/'+results_folder)
@@ -50,10 +19,16 @@ def initial_status_codes(initial=False, follow_redirects=False):
     initial_errors["nourl"] = 0
     initial_errors["norequest"] = 0
     norequestsites = []
+    forbidden_chunks = []
+    chunk_counter = 0
+    forbidden_amt = 0
+
+    subdirs.sort(key=eval_utils.sortfunc)
     for dir in subdirs:
         sub_subdirs = os.listdir(os.path.join(results_dir, dir))
         #print(sub_subdirs)
         print(dir)
+        sub_subdirs.sort(key=eval_utils.sortfunc)
         for subdir in sub_subdirs:
             files = os.listdir(os.path.join(results_dir, dir, subdir))
             #print(files)
@@ -79,30 +54,25 @@ def initial_status_codes(initial=False, follow_redirects=False):
                             if follow_redirects:
                                 response = eval_utils.find_initial_response(req_res_err, data, website_name, True)
                                 if type(response) == int:
-                                #    if response == -1:
-                                #        initial_errors["noinitial"] += 1
-                                #    elif response == -2:
-                                #        initial_errors["noresponse"] += 1
-                                #    elif response == -3:
-                                #        initial_errors["nourl"] += 1
-                                #    elif response == -4:
-                                #        initial_errors["norequest"] += 1
-                                #        norequestsites.append(dir+"/"+subdir+"/"+file)
                                     initial_response_fail += 1
                                     break
                         if type(response) == str:
                             response = json.loads(response)
                         status_code = str(response["status_code"])
-                        if not status_code in status_codes:
-                            print(status_code)
-                            status_codes[status_code] = 1
-                        else:
-                            status_codes[status_code] += 1
+                        if status_code == "403":
+                            forbidden_amt += 1
                         if initial:
                             break
-    open("codes.txt", "w").write(str(status_codes))
-    print(f'initial response fails: {initial_response_fail}')
-    print(f'missing responses: {missing_response}')
+            chunk_counter += 1
+            if chunk_counter == CHUNK_SIZE:
+                forbidden_chunks.append(forbidden_amt)
+                forbidden_amt = 0
+                chunk_counter = 0
+
+    print(forbidden_chunks)                    
+    #open("codes.txt", "w").write(str(status_codes))
+    #print(f'initial response fails: {initial_response_fail}')
+    #print(f'missing responses: {missing_response}')
     #for key in initial_errors.keys():
     #    print(f'{key}: {initial_errors[key]}')
     #for site in norequestsites[0:100]:
@@ -142,6 +112,3 @@ def print_status_codes(status_codes):
     print(f'total responses: {total_responses}')
 
 initial_status_codes()
-with open("codes.txt", "r") as f:
-    status_codes = eval(f.read())
-    print_status_codes(status_codes)

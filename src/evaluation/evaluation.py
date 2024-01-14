@@ -116,10 +116,12 @@ def evaluate(results_folder):
                                         raise Exception("Error in is_initial_request")
                                     if is_initial_request:
                                         try:
-                                            initial_headers = eval_utils.find_initial_response(obj, data, website_name)["headers"]
+                                            initial_response = eval_utils.find_initial_response(obj, data, website_name)
+                                            if not initial_response is None:
+                                                initial_headers = initial_response["headers"]
                                         except:
                                             print(subdir)
-                                            raise Exception("Error in find_initial_headers")
+                                            #raise Exception("Error in find_initial_headers")
                                         if initial_headers:
                                             if not dir in domain_headers:
                                                 domain_headers[dir] = dict()
@@ -128,7 +130,8 @@ def evaluate(results_folder):
                                     total_responses += 1
                                     total_all_response_headers_length += len(str(req_res_err_obj["headers"]))
                                     for header in req_res_err_obj["headers"]:
-                                       if header in security_headers:
+                                       secheader = header.lower()
+                                       if secheader in security_headers:
                                            #print(str(req_res_err_obj["headers"][header]))
                                            #raise Exception("stop")
                                            header_length = len(req_res_err_obj["headers"][header])
@@ -137,11 +140,12 @@ def evaluate(results_folder):
                                            total_response_sec_header_length+=header_length
                                 headers = get_total_header_count(headers, req_res_err_obj["headers"].keys(), key, security_headers)
                                 for header in req_res_err_obj["headers"]:
-                                    if header in security_headers:
+                                    secheader = header.lower()
+                                    if secheader in security_headers:
                                         total_header_length += len(req_res_err_obj["headers"][header])
-                                        if not header in sec_header_length:
-                                            sec_header_length[header] = 0
-                                        sec_header_length[header]+=len(req_res_err_obj["headers"][header])
+                                        if not secheader in sec_header_length:
+                                            sec_header_length[secheader] = 0
+                                        sec_header_length[secheader]+=len(req_res_err_obj["headers"][header])
                         domain_amount = len(req_per_domain.keys())
 
                         #count multiple requests per domain. Only exact matches. Subdomains each count as a separate domain.
