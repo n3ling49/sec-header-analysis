@@ -75,11 +75,13 @@ def find_security_headers(initial=False, follow_redirects=False):
     chunks.append(chunk)
 
     chunk_counter = 0
+    subdirs.sort(key=eval_utils.sortfunc)
     for dir in subdirs:
         sub_subdirs = os.listdir(os.path.join(results_dir, dir))
         #print(sub_subdirs)
 
         print(dir)
+        sub_subdirs.sort(key=eval_utils.sortfunc)
         for subdir in sub_subdirs:
             files = os.listdir(os.path.join(results_dir, dir, subdir))
             chunk["ids"].append(chunk_id)
@@ -187,6 +189,7 @@ def find_security_headers(initial=False, follow_redirects=False):
     print(f'initial response fails: {initial_response_fail}')
     print(f'missing responses: {missing_response}')
     print(f'wrong status: {wrong_status}')
+    print(f'valid responses: {sum([chunk["valid_responses"] for chunk in chunks])}')
     return other_headers
 
 def load_other_headers():
