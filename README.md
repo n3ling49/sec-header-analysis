@@ -2,7 +2,7 @@
 
 This tool is being used to gather data on **security headers** in http requests as foundation for my **bachelor thesis**.
 
-On execution it will access the top 1 million most visited sites according to [this site](https://tranco-list.eu/) through a headless browser and save the header information of all HTTP requests made during this process for further analysis.
+On execution it will crawl the top 1 million most visited sites according to the [Tranco list](https://tranco-list.eu/) through a headless browser and save the header information of all HTTP requests made during this process for further analysis.
 
 # How to setup
 
